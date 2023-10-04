@@ -7,7 +7,7 @@
   </a>  
 </p>
 
-<a href="README_EN.MD">English</a>
+<a href="README_EN.md">English</a>
 
 # 功能介绍
 [jira](https://www.atlassian.com/software/jira) 不可否认是一个可以帮助有效提高工作效率的工具，但是我们在使用 jira 时使用问题表格可以让我们看到跟多的内容而不用关注细节，但是目前在问题表格页无法较快地编辑，基于这个问题，有了这个插件，示例功能如下:
