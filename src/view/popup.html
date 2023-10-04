@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/css/pure-min.css" />
+    <link rel="stylesheet" href="/css/popup.css">
+  </head>
+  <body ng-app="popupApp" ng-controller="popupAppController">
+    <div class="pure-g">
+      <div class="pure-menu pure-u-22-24" style="padding-left: 10px;margin-bottom: 10px;">
+        <h3>Support website</h3>
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item" ng-repeat="item in websiteList">
+            <a href="#" class="pure-menu-link">
+              {{item}} 
+              <button style="float: right;" ng-click="removeWebsite(item)">x</button>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="pure-u-1" style="background-color: rgb(218, 220, 248);">
+        <div class="pure-u-22-24" style="padding-left: 10px;padding-top: 10px;padding-bottom: 10px;">
+          <form class="pure-form">
+            <input type="url" ng-model="website" class="pure-u-1" placeholder="please input jira website" />
+            <button type="submit" ng-click="submit()" class="pure-button pure-button-primary pure-u-1">submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="/js/angular.min.js"></script>
+    <script src="/js/session.js"></script>
+    <script src="/js/popup.js"></script>
+  </body>
+</html>
