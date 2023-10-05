@@ -5,7 +5,7 @@
   "description": "This helps us operate quickly on the issueTable page",
   "content_scripts": [{
     "matches": [ "http://*/*", "https://*/*" ],
-    "js": ["/js/jquery-3.7.1.min.js", "/js/content_scripts.js"],
+    "js": ["/js/jquery-3.7.1.min.js", "/js/utils.js", "/js/content.js"],
     "run_at": "document_idle"
   }],
   "icons": {
