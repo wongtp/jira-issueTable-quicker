@@ -25,5 +25,13 @@ After using the plug-in, double-click the summary field to turn it into an input
 
 
 # Implemented
- - ✅ Double-click to edit summary field;
- - ⬜️ Double-click other fields to edit.
+ - ✅ Double-click to edit most pure input input box fields;
+ - ✅ Double-click to edit most drop-down selection box fields;
+ - ✅ Double-click to edit the assignee field;
+ - ✅ Double-click to edit the radio type field;
+ - ⬜️ Double-click other types of fields to edit;
+
+ # Known issues
+ - ⚠️After some fields are double-clicked to enter the editable state, the value does not actually support modification. For example, the user selects a multiuserpicker type field;
+ - ⚠️After some fields are double-clicked to enter the editable state, they cannot be restored to the uneditable state without modifying the value;
+ - ⚠️Since the editing form data is loaded simultaneously when the table is double-clicked, if the network speed is relatively slow, it may take a long time to enter the editable state. Consider adding preloading or caching in the future;
