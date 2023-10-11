@@ -105,31 +105,41 @@ function handleAssigneeTd(td, issueId, editFieldDom) {
   td.innerHTML = editFieldDom.outerHTML;
 
   var newSelect = document.getElementById(select.id);
+  var newInnerHtmlTemplate = '<span class="tinylink"><a class="user-hover" rel="{0}" id="assignee_{1}" href="/secure/ViewProfile.jspa?name={2}">{3}</a></span>';
   var callback = (mutationsList, observer)  => {
     for (var mutation of mutationsList) {
-      if (!mutation.target.selected || mutation.attributeName != "selected") {
+      if (mutation.target.options == null) {
         continue;
       }
-      var username = mutation.target.value;
-      var displayname = mutation.target.text;
-      var newInnerHtml = utils.format('<span class="tinylink"><a class="user-hover" rel="{0}" id="assignee_{1}" href="/secure/ViewProfile.jspa?name={2}">{3}</a></span>',
-        username, username, username, displayname);
-
-      saveTd(issueId, td, oldInnerHtml, newInnerHtml, oldValue, username);
-      observer.disconnect();
+      for (var option of mutation.target.options) {
+        if (option.selected != true) {
+          continue;
+        }
+        var username = option.value;
+        if (username === oldValue) {
+          continue;
+        }
+        var displayname = option.text;
+        var newInnerHtml = utils.format(newInnerHtmlTemplate, username, username, username, displayname);
+  
+        saveTd(issueId, td, oldInnerHtml, newInnerHtml, oldValue, username);
+        observer.disconnect();
+        return;
+      }
     }
   };
   new MutationObserver(callback).observe(newSelect, {attributes: true, childList: true, subtree: true});
 
   var assignToMeBtn = document.getElementById("assign-to-me-trigger");
-  assignToMeBtn.onclick = () => {
-    var currentUser = document.getElementById("header-details-user-fullname");
-    var username = currentUser.getAttribute("data-username");
-    var displayname = currentUser.getAttribute("data-displayname");
-    var newInnerHtml = utils.format('<span class="tinylink"><a class="user-hover" rel="{0}" id="assignee_{1}" href="/secure/ViewProfile.jspa?name={2}">{3}</a></span>',
-      username, username, username, displayname);
-
-    saveTd(issueId, td, oldInnerHtml, newInnerHtml, oldValue, username);
+  if (assignToMeBtn != null) {
+    assignToMeBtn.onclick = () => {
+      var currentUser = document.getElementById("header-details-user-fullname");
+      var username = currentUser.getAttribute("data-username");
+      var displayname = currentUser.getAttribute("data-displayname");
+      var newInnerHtml = utils.format(newInnerHtmlTemplate, username, username, username, displayname);
+  
+      saveTd(issueId, td, oldInnerHtml, newInnerHtml, oldValue, username);
+    }
   }
 }
 
