@@ -35,6 +35,58 @@ function bindClickEvet() {
 }
 
 function onTdDoubleClick(td, issueId) {
+  var editFieldDom = getEditFieldDom(td, issueId);
+  if (editFieldDom == null) {
+    return;
+  }
+  // remove unused html
+  purifyDom(editFieldDom);
+  console.debug(editFieldDom);
+
+  if (td.className === "assignee") {
+    handleAssigneeTd(td, issueId, editFieldDom);
+
+  } else if (editFieldDom.querySelector("select") != null) {
+    handleSingleSelectTd(td, issueId, editFieldDom);
+
+  } else if (editFieldDom.querySelector(".radio") != null) {
+    handleRadioTd(td, issueId, editFieldDom)
+
+  } else if (editFieldDom.querySelector("input") != null) {
+    handleInputTd(td, issueId, editFieldDom);
+  }
+}
+
+function purifyDom(editFieldDom) {
+  var legends = editFieldDom.querySelectorAll("legend");
+  if (legends != null) {
+    legends.forEach(legend => legend.parentNode.removeChild(legend));
+  }
+
+  var labels = editFieldDom.querySelectorAll("div:not(.radio) label");
+  if (labels != null) {
+    labels.forEach(label => label.parentNode.removeChild(label));
+  }
+
+  var descriptions = editFieldDom.querySelectorAll(".description");
+  if (descriptions != null) {
+    descriptions.forEach(description => {
+      description.parentNode.removeChild(description);
+    });
+  }
+}
+
+function getEditFieldDom(td, issueId) {
+  // build edit dom object from local, in order to speed up the double click event
+  var className = td.className;
+  if (className === "summary" 
+      || className === "timeoriginalestimate") {
+
+    var editHtml = utils.format('<p><input style="width: 100%;" type="text" value="{0}" id="{1}" ></p>', td.innerText, className);
+    return new DOMParser().parseFromString(editHtml, 'text/html').body.firstChild;
+  }
+
+  // load edit dom from jira server
   var issueEditDataUrl = utils.format("{0}/secure/AjaxIssueEditAction!default.jspa?decorator=none&issueId={1}&_={2}", domain, issueId, new Date().getTime());
   var editDataMap = new Map();
   $.ajax({
@@ -54,43 +106,12 @@ function onTdDoubleClick(td, issueId) {
   });
   var editField = editDataMap.get(td.className);
   if (editField == null || typeof(editField) === "undefined") {
-    return;
+    return null;
   }
   console.debug(editField);
 
   var editFieldDom = new DOMParser().parseFromString(editField.editHtml, 'text/html').body.firstChild;
-  
-  // remove unused html
-  var legends = editFieldDom.querySelectorAll("legend");
-  if (legends != null) {
-    legends.forEach(legend => legend.parentNode.removeChild(legend));
-  }
-  
-  var labels = editFieldDom.querySelectorAll("div:not(.radio) label");
-  if (labels != null) {
-    labels.forEach(label => label.parentNode.removeChild(label));
-  }
-  
-  var descriptions = editFieldDom.querySelectorAll(".description");
-  if (descriptions != null) {
-    descriptions.forEach(description => {
-      description.parentNode.removeChild(description);
-    });
-  }
-  console.debug(editFieldDom);
-
-  if (td.className === "assignee") {
-    handleAssigneeTd(td, issueId, editFieldDom);
-
-  } else if (editFieldDom.querySelector("select") != null) {
-    handleSingleSelectTd(td, issueId, editFieldDom);
-
-  } else if (editFieldDom.querySelector(".radio") != null) {
-    handleRadioTd(td, issueId, editFieldDom)
-
-  } else {
-    handleInputTd(td, issueId, editFieldDom);
-  }
+  return editFieldDom;
 }
 
 function handleAssigneeTd(td, issueId, editFieldDom) {
@@ -151,7 +172,7 @@ function handleSingleSelectTd(td, issueId, editFieldDom) {
   var oldInnerHtml = td.innerHTML;
   var oldValue = select.value;
   select.id = "edit_" + td.className + "_" + issueId;
-
+  
   td.innerHTML = editFieldDom.outerHTML;
 
   var newSelect = document.getElementById(select.id);
@@ -225,10 +246,12 @@ function saveTd(issueId, td, oldInnerHtml, newInnerHtml, oldValue, newValue) {
     td.innerHTML = oldInnerHtml;
     return;
   }
+  var editFieldName = td.className;
+  if (editFieldName === "timeoriginalestimate") {
+    editFieldName = "timetracking";
+  }
 
-  var formData = utils.format("{0}={1}&issueId={2}&atl_token={3}&singleFieldEdit=true&fieldsToForcePresent={4}",
-    td.className, encodeURI(newValue), issueId, token, td.className)
-
+  var formData = encodeURI(utils.format("{0}={1}&issueId={2}&atl_token={3}&singleFieldEdit=true&fieldsToForcePresent={4}", editFieldName, newValue, issueId, token, editFieldName));
   $.ajax({
     type: "post",
     dataType: "json", 
