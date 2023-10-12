@@ -247,50 +247,6 @@ function saveTd(issueId, td, oldInnerHtml, newInnerHtml, oldValue, newValue) {
   });
 }
 
-function onSummaryDblclick(summary, issueId) {
-  var linkEle = summary.querySelector("a");
-  var pEle = summary.querySelector("p");
-  var summaryText = linkEle.innerText;
-  var inputHtml = utils.format('<input class="text long-field" style="width: 100%;" type="text" value="{0}" id="edit_summary_{1}" >', summaryText, issueId)
-  
-  pEle.innerHTML = inputHtml;
-  var inputEle = document.getElementById("edit_summary_" + issueId);
-  inputEle.onblur = () => saveSummary(issueId, summaryText, linkEle, pEle)
-  inputEle.focus();
-  inputEle.setSelectionRange(summaryText.length, summaryText.length);
-}
-
-function saveSummary(issueId, oldValue, linkEle, pEle) {
-  var summaryInput = document.getElementById("edit_summary_" + issueId);
-  var newValue = summaryInput.value;
-  if (oldValue === newValue) {
-    pEle.innerHTML = linkEle.outerHTML;
-    return;
-  }
-  if (newValue == null || newValue.trim() ==="") {
-    alert("summary can not be empty");
-    summaryInput.value = oldValue;
-    return;
-  }
-
-  var formData = utils.format("summary={0}&issueId={1}&atl_token={2}&singleFieldEdit=true&fieldsToForcePresent=summary",
-    encodeURI(newValue), issueId, token)
-
-  $.ajax({
-    type: "post",
-    dataType: "json", 
-    url: domain + "/secure/AjaxIssueAction.jspa?decorator=none",
-    data: formData,
-    success: function(result) {
-      linkEle.innerText = newValue;
-      pEle.innerHTML = linkEle.outerHTML;
-    },
-    error: function(result, status) {
-      alert("status: " + status + ", save data error: \n" + result);
-    }
-  });
-}
-
 function bindTableChangeEvent() {
   var targetNode = document.querySelector("#jira #main");
   if (targetNode == null) {
