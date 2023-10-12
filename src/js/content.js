@@ -129,23 +129,28 @@ function handleAssigneeTd(td, issueId, editFieldDom) {
   var newInnerHtmlTemplate = '<span class="tinylink"><a class="user-hover" rel="{0}" id="assignee_{1}" href="/secure/ViewProfile.jspa?name={2}">{3}</a></span>';
   var callback = (mutationsList, observer)  => {
     for (var mutation of mutationsList) {
-      if (mutation.target.options == null) {
-        continue;
+      var username = null;
+      var displayname = null;
+      if (mutation.target.options != null) {
+        for (var option of mutation.target.options) {
+          if (option.selected != true) {
+            continue;
+          }
+          displayname = option.text;
+          username = option.value;
+          if (username === oldValue) {
+            continue;
+          }
+          break;
+        }
+      } else if (mutation.target.tagName === "OPTION" && mutation.target.selected === true) {
+        displayname = mutation.target.text;
+        username = mutation.target.value;
       }
-      for (var option of mutation.target.options) {
-        if (option.selected != true) {
-          continue;
-        }
-        var username = option.value;
-        if (username === oldValue) {
-          continue;
-        }
-        var displayname = option.text;
+      if (username != null && username != oldValue) {
         var newInnerHtml = utils.format(newInnerHtmlTemplate, username, username, username, displayname);
-  
         saveTd(issueId, td, oldInnerHtml, newInnerHtml, oldValue, username);
         observer.disconnect();
-        return;
       }
     }
   };
